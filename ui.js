@@ -1,4 +1,12 @@
-$(async function() {
+"use strict";
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//$(async function() {}) /same as $(document.ready(function(){}))
+//all code on this page is inside this function
+//
+$(async function () {
+  // ---------------------initialization---------------------
+  // global variables
+  //
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
   const $submitForm = $("#submit-form");
@@ -14,15 +22,22 @@ $(async function() {
 
   // global currentUser variable
   let currentUser = null;
-
+  //------------------------------------------------------------------
+  //                       Start Logic
+  //
   await checkIfLoggedIn();
 
+  //^^^^^^^^^^^^^^^^^^^^^^EVENT LISTENERS^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //
+  //------------------------------------------------------------------
+  //Event listener for logging in
+  //
   /**
    * Event listener for logging in.
    *  If successfully we will setup the user instance
    */
 
-  $loginForm.on("submit", async function(evt) {
+  $loginForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page-refresh on submit
 
     // grab the username and password
@@ -33,16 +48,18 @@ $(async function() {
     const userInstance = await User.login(username, password);
     // set the global user to the user instance
     currentUser = userInstance;
-    syncCurrentUserToLocalStorage();
+    syncCurrentUserTo();
     loginAndSubmitForm();
   });
-
+  //------------------------------------------------------------------
+  //Event listener for signing up
+  //
   /**
    * Event listener for signing up.
    *  If successfully we will setup a new user instance
    */
 
-  $createAccountForm.on("submit", async function(evt) {
+  $createAccountForm.on("submit", async function (evt) {
     evt.preventDefault(); // no page refresh
 
     // grab the required fields
@@ -56,39 +73,49 @@ $(async function() {
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
   });
-
+  //------------------------------------------------------------------
+  //Log Out Functionality
+  //
   /**
    * Log Out Functionality
    */
 
-  $navLogOut.on("click", function() {
+  $navLogOut.on("click", function () {
     // empty out local storage
     localStorage.clear();
     // refresh the page, clearing memory
     location.reload();
   });
-
+  //------------------------------------------------------------------
+  //Event Handler for Clicking Login
+  //
   /**
    * Event Handler for Clicking Login
    */
 
-  $navLogin.on("click", function() {
+  $navLogin.on("click", function () {
     // Show the Login and Create Account Forms
     $loginForm.slideToggle();
     $createAccountForm.slideToggle();
     $allStoriesList.toggle();
   });
-
+  //------------------------------------------------------------------
+  //Event handler for Navigation to Homepage
+  //
   /**
    * Event handler for Navigation to Homepage
    */
 
-  $("body").on("click", "#nav-all", async function() {
+  $("body").on("click", "#nav-all", async function () {
     hideElements();
     await generateStories();
     $allStoriesList.show();
   });
-
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^FUNCTIONS^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //
+  //------------------------------------------------------------------
+  //checkIfLoggedIn()
+  //
   /**
    * On page load, checks local storage to see if the user is already logged in.
    * Renders page information accordingly.
@@ -109,7 +136,9 @@ $(async function() {
       showNavForLoggedInUser();
     }
   }
-
+  //------------------------------------------------------------------
+  //loginAndSubmitForm()
+  //
   /**
    * A rendering function to run to reset the forms and hide the login info
    */
@@ -129,7 +158,9 @@ $(async function() {
     // update the navigation bar
     showNavForLoggedInUser();
   }
-
+  //------------------------------------------------------------------
+  //generateStories()
+  //
   /**
    * A rendering function to call the StoryList.getStories static method,
    *  which will generate a storyListInstance. Then render it.
@@ -149,7 +180,9 @@ $(async function() {
       $allStoriesList.append(result);
     }
   }
-
+  //------------------------------------------------------------------
+  //generateStoryHTML(story)
+  //
   /**
    * A function to render HTML for an individual Story instance
    */
@@ -171,7 +204,9 @@ $(async function() {
 
     return storyMarkup;
   }
-
+  //------------------------------------------------------------------
+  //hideElements()
+  //
   /* hide all elements in elementsArr */
 
   function hideElements() {
@@ -181,16 +216,20 @@ $(async function() {
       $filteredArticles,
       $ownStories,
       $loginForm,
-      $createAccountForm
+      $createAccountForm,
     ];
-    elementsArr.forEach($elem => $elem.hide());
+    elementsArr.forEach(($elem) => $elem.hide());
   }
-
+  //------------------------------------------------------------------
+  //showNavForLoggedInUser()
+  //
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
   }
-
+  //------------------------------------------------------------------
+  //getHostName(url)
+  //
   /* simple function to pull the hostname from a URL */
 
   function getHostName(url) {
@@ -205,7 +244,9 @@ $(async function() {
     }
     return hostName;
   }
-
+  //------------------------------------------------------------------
+  //syncCurrentUserToLocalStorage()
+  //
   /* sync current user information to localStorage */
 
   function syncCurrentUserToLocalStorage() {
@@ -215,3 +256,4 @@ $(async function() {
     }
   }
 });
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

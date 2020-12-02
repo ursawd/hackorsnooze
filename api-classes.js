@@ -1,5 +1,10 @@
+"use strict";
+//^^^^^^^^^^^^^^^^^^^^^^^^^INITIALIZATION^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//
 const BASE_URL = "https://hack-or-snooze-v3.herokuapp.com";
-
+//
+//^^^^^^^^^^^^^^^^^^^^^^^^^CLASS STORYLIST^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**
  * This class maintains the list of individual Story instances
  *  It also has some methods for fetching, adding, and removing stories
@@ -10,6 +15,12 @@ class StoryList {
     this.stories = stories;
   }
 
+  //---------------:--------------------------------------------------
+  //getStories()   |
+  //addStory()     |
+  //---------------:--------------------------------------------------
+  //getStories()
+  //
   /**
    * This method is designed to be called to generate a new StoryList.
    *  It:
@@ -28,13 +39,15 @@ class StoryList {
     const response = await axios.get(`${BASE_URL}/stories`);
 
     // turn the plain old story objects from the API into instances of the Story class
-    const stories = response.data.stories.map(story => new Story(story));
+    const stories = response.data.stories.map((story) => new Story(story));
 
     // build an instance of our own class using the new array of stories
     const storyList = new StoryList(stories);
     return storyList;
   }
-
+  //------------------------------------------------------------------
+  //addStory()
+  //
   /**
    * Method to make a POST request to /stories and add the new story to the list
    * - user - the current instance of User who will post the story
@@ -50,7 +63,8 @@ class StoryList {
   }
 }
 
-
+//^^^^^^^^^^^^^^^^^^^^^^^^^^CLASS USER^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**
  * The User class to primarily represent the current user.
  *  There are helper methods to signup (create), login, and getLoggedInUser
@@ -68,7 +82,13 @@ class User {
     this.favorites = [];
     this.ownStories = [];
   }
-
+  //------------------:-----------------------------------------------
+  //create()          |
+  //login()           |
+  //getLoggedInUser() |
+  //------------------:-----------------------------------------------
+  //create()
+  //
   /* Create and return a new user.
    *
    * Makes POST request to API and returns newly-created user.
@@ -83,8 +103,8 @@ class User {
       user: {
         username,
         password,
-        name
-      }
+        name,
+      },
     });
 
     // build a new User instance from the API response
@@ -95,7 +115,9 @@ class User {
 
     return newUser;
   }
-
+  //------------------------------------------------------------------
+  //login()
+  //
   /* Login in user and return user instance.
 
    * - username: an existing user's username
@@ -106,23 +128,29 @@ class User {
     const response = await axios.post(`${BASE_URL}/login`, {
       user: {
         username,
-        password
-      }
+        password,
+      },
     });
 
     // build a new User instance from the API response
     const existingUser = new User(response.data.user);
 
     // instantiate Story instances for the user's favorites and ownStories
-    existingUser.favorites = response.data.user.favorites.map(s => new Story(s));
-    existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
+    existingUser.favorites = response.data.user.favorites.map(
+      (s) => new Story(s)
+    );
+    existingUser.ownStories = response.data.user.stories.map(
+      (s) => new Story(s)
+    );
 
     // attach the token to the newUser instance for convenience
     existingUser.loginToken = response.data.token;
 
     return existingUser;
   }
-
+  //------------------------------------------------------------------
+  //getLoggedInUser()
+  //
   /** Get user instance for the logged-in-user.
    *
    * This function uses the token & username to make an API request to get details
@@ -136,8 +164,8 @@ class User {
     // call the API
     const response = await axios.get(`${BASE_URL}/users/${username}`, {
       params: {
-        token
-      }
+        token,
+      },
     });
 
     // instantiate the user from the API information
@@ -147,18 +175,22 @@ class User {
     existingUser.loginToken = token;
 
     // instantiate Story instances for the user's favorites and ownStories
-    existingUser.favorites = response.data.user.favorites.map(s => new Story(s));
-    existingUser.ownStories = response.data.user.stories.map(s => new Story(s));
+    existingUser.favorites = response.data.user.favorites.map(
+      (s) => new Story(s)
+    );
+    existingUser.ownStories = response.data.user.stories.map(
+      (s) => new Story(s)
+    );
     return existingUser;
   }
 }
-
+//^^^^^^^^^^^^^^^^^^^^^^^^^^CLASS STORY^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**
  * Class to represent a single story.
  */
 
 class Story {
-
   /**
    * The constructor is designed to take an object for better readability / flexibility
    * - storyObj: an object that has story properties in it
@@ -174,3 +206,4 @@ class Story {
     this.updatedAt = storyObj.updatedAt;
   }
 }
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
