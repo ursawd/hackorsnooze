@@ -23,13 +23,26 @@
           >Hack or Snooze</a
         ></b
       >
+
       <a class="nav-link nav-right" href="#" id="nav-login"
         >login/create user</a
       >
+
       <span class="nav-link nav-right hidden" id="nav-welcome">
         <a href="#" id="nav-user-profile"></a>
       </span>
-      <a class="hidden" id="nav-logout" href="#">
+      <div class="hidden nav-left" id="user-nav-menu">
+        <a id="nav-submit" href="#">
+          <small>submit |</small>
+        </a>
+        <a id="nav-favorites" href="#">
+          <small>favorites |</small>
+        </a>
+        <a id="nav-my-stories" href="#">
+          <small>my stories</small>
+        </a>
+      </div>
+      <a class="hidden nav-right" id="nav-logout" href="#">
         <small>(logout)</small>
       </a>
     </nav>
@@ -89,7 +102,7 @@
         </div>
         <div class="login-input">
           <label for="login-password">password</label>
-          <input id="login-password" type="password" />
+          <input id="login-password" type="password" autocomplete="off" />
         </div>
         <button type="submit">login</button>
         <hr />
@@ -111,7 +124,11 @@
         </div>
         <div class="login-input">
           <label for="create-account-password">password</label>
-          <input id="create-account-password" type="password" />
+          <input
+            id="create-account-password"
+            type="password"
+            autocomplete="off"
+          />
         </div>
         <button type="submit">create account</button>
       </form>

@@ -25,6 +25,7 @@ $(async function () {
   //------------------------------------------------------------------
   //                       Start Logic
   //
+  // wait for 'check if logged in' function to complete before continuing
   await checkIfLoggedIn();
 
   //^^^^^^^^^^^^^^^^^^^^^^EVENT LISTENERS^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -48,7 +49,7 @@ $(async function () {
     const userInstance = await User.login(username, password);
     // set the global user to the user instance
     currentUser = userInstance;
-    syncCurrentUserTo();
+    syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
   });
   //------------------------------------------------------------------
@@ -128,7 +129,7 @@ $(async function () {
 
     // if there is a token in localStorage, call User.getLoggedInUser
     //  to get an instance of User with the right details
-    //  this is designed to run once, on page load
+    //!   this is designed to run once, on page load
     currentUser = await User.getLoggedInUser(token, username);
     await generateStories();
 
@@ -226,6 +227,10 @@ $(async function () {
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
+    console.log(
+      $("#nav-logout").children().text(`${currentUser.username} (logout)`)
+    );
+    $("#user-nav-menu").show();
   }
   //------------------------------------------------------------------
   //getHostName(url)
