@@ -101,7 +101,7 @@ $(async function () {
     $allStoriesList.toggle();
   });
   //------------------------------------------------------------------
-  //Event handler for Navigation to Homepage
+  //*Event handler for Navigation to Homepage
   //
   /**
    * Event handler for Navigation to Homepage
@@ -112,6 +112,8 @@ $(async function () {
     await generateStories();
     $allStoriesList.show();
   });
+  //------------------------------------------------------------------
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^FUNCTIONS^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
   //------------------------------------------------------------------
@@ -209,6 +211,7 @@ $(async function () {
   //hideElements()
   //
   /* hide all elements in elementsArr */
+  /* used when Hack or Snooze logo clicked */
 
   function hideElements() {
     const elementsArr = [
@@ -227,9 +230,9 @@ $(async function () {
   function showNavForLoggedInUser() {
     $navLogin.hide();
     $navLogOut.show();
-    console.log(
-      $("#nav-logout").children().text(`${currentUser.username} (logout)`)
-    );
+    //add user name in front of logout prompt
+    $("#nav-logout").children().text(`${currentUser.username} (logout)`);
+    //show user nav menu after user is logged in
     $("#user-nav-menu").show();
   }
   //------------------------------------------------------------------
@@ -253,6 +256,7 @@ $(async function () {
   //syncCurrentUserToLocalStorage()
   //
   /* sync current user information to localStorage */
+  // used after login or account creation
 
   function syncCurrentUserToLocalStorage() {
     if (currentUser) {
