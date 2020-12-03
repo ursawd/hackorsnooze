@@ -1,11 +1,12 @@
 "use strict";
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //$(async function() {}) /same as $(document.ready(function(){}))
 //all code on this page is inside this function
 //
 $(async function () {
   // ---------------------initialization---------------------
-  // global variables
+  // "global" variables
   //
   // cache some selectors we'll be using quite a bit
   const $allStoriesList = $("#all-articles-list");
@@ -31,6 +32,26 @@ $(async function () {
   //^^^^^^^^^^^^^^^^^^^^^^EVENT LISTENERS^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
   //------------------------------------------------------------------
+  // event listener for submit link in user nav menu
+  //
+  $("#nav-submit").on("click", function (event) {
+    $submitForm.slideToggle(); //show story form
+  });
+  //------------------------------------------------------------------
+  //event listener for create story form submit
+  //
+  $submitForm.on("submit", function (event) {
+    event.preventDefault();
+    $submitForm.toggle();
+    //retrive form data
+    const author = $("#author").val();
+    const title = $("#title").val();
+    const url = $("#url").val();
+
+    //make story object
+    const newAPIStory = storyList.addStory(currentUser, { author, title, url });
+  });
+  //------------------------------------------------------------------
   //Event listener for logging in
   //
   /**
@@ -51,6 +72,7 @@ $(async function () {
     currentUser = userInstance;
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
+    showProfileInfo(currentUser);
   });
   //------------------------------------------------------------------
   //Event listener for signing up
@@ -73,6 +95,7 @@ $(async function () {
     currentUser = newUser;
     syncCurrentUserToLocalStorage();
     loginAndSubmitForm();
+    showProfileInfo(currentUser);
   });
   //------------------------------------------------------------------
   //Log Out Functionality
@@ -131,7 +154,7 @@ $(async function () {
 
     // if there is a token in localStorage, call User.getLoggedInUser
     //  to get an instance of User with the right details
-    //!   this is designed to run once, on page load
+    //  this is designed to run once, on page load
     currentUser = await User.getLoggedInUser(token, username);
     await generateStories();
 
@@ -239,6 +262,7 @@ $(async function () {
   //getHostName(url)
   //
   /* simple function to pull the hostname from a URL */
+  // called only by generateStoryHTML
 
   function getHostName(url) {
     let hostName;
@@ -265,4 +289,24 @@ $(async function () {
     }
   }
 });
+//------------------------------------------------------------------
+//  displays profile info at page bottom
+//
+function showProfileInfo(currentUser) {
+  $("#profile-name").text(
+    $("#profile-name")
+      .text()
+      .concat(" " + currentUser.name)
+  );
+  $("#profile-username").text(
+    $("#profile-username")
+      .text()
+      .concat(" " + currentUser.username)
+  );
+  $("#profile-account-date").text(
+    $("#profile-account-date")
+      .text()
+      .concat(" " + currentUser.createdAt)
+  );
+}
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

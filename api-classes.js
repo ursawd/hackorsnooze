@@ -60,6 +60,20 @@ class StoryList {
     // TODO - Implement this functions!
     // this function should return the newly created story so it can be used in
     // the script.js file where it will be appended to the DOM
+    console.log("in add story");
+    const response = await axios({
+      method: "POST",
+      url: "https://hack-or-snooze-v3.herokuapp.com/stories",
+      data: {
+        token: user.loginToken,
+        story: newStory,
+      },
+    });
+    //change js object to Story object
+    newStory = new Story(response.data.story);
+    this.stories.unshift(newStory); // add to stories list
+    user.ownStories.unshift(newStory); //add to ownStories list
+    return newStory;
   }
 }
 
