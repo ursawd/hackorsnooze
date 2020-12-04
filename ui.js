@@ -51,7 +51,14 @@ $(async function () {
   //------------------------------------------------------------------
   // event listener for my-stories link in user nav menu
   //
-  $("#nav-my-stories").on("click", function (event) {});
+  $("#nav-my-stories").on("click", function (event) {
+    hideElements();
+    if (currentUser) {
+      generateMyStories();
+      $ownStories.show();
+    }
+  });
+
   //------------------------------------------------------------------
   //event listener for create story form submit
   //
@@ -287,7 +294,7 @@ $(async function () {
    * A function to render HTML for an individual Story instance
    */
 
-  function generateStoryHTML(story, isOwnStory = false) {
+  function generateStoryHTML(story, isOwnStory) {
     let hostName = getHostName(story.url);
     let starType = isFavorite(story) ? "fas" : "far";
 
@@ -330,6 +337,7 @@ $(async function () {
       $ownStories,
       $loginForm,
       $createAccountForm,
+      $("#favorited-articles"),
     ];
     elementsArr.forEach(($elem) => $elem.hide());
   }
