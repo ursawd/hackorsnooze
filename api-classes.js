@@ -77,7 +77,7 @@ class StoryList {
   }
   async removeStory(user, storyId) {
     await axios({
-      url: `https://hack-or-snooze-v3.herokuapp.com/stories/stories/${storyId}`,
+      url: `https://hack-or-snooze-v3.herokuapp.com/stories/${storyId}`,
       method: "DELETE",
       data: {
         token: user.loginToken,

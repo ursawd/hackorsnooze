@@ -31,6 +31,26 @@ $(async function () {
 
   //^^^^^^^^^^^^^^^^^^^^^^EVENT LISTENERS^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
+  //------------------------------------------------------------------
+  //
+  //
+  $ownStories.on("click", ".trash-can", async function (event) {
+    // get the Story's ID
+    const $closestLi = $(event.target).closest("li");
+    const storyId = $closestLi.attr("id");
+
+    // remove the story from the API
+    await storyList.removeStory(currentUser, storyId);
+
+    // re-generate the story list
+    await generateStories();
+
+    // hide everyhing
+    hideElements();
+
+    // ...except the story list
+    $allStoriesList.show();
+  });
 
   //------------------------------------------------------------------
   // event listener for submit link in user nav menu
