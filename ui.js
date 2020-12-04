@@ -31,12 +31,27 @@ $(async function () {
 
   //^^^^^^^^^^^^^^^^^^^^^^EVENT LISTENERS^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
+
   //------------------------------------------------------------------
   // event listener for submit link in user nav menu
   //
   $("#nav-submit").on("click", function (event) {
     $submitForm.slideToggle(); //show story form
   });
+  //------------------------------------------------------------------
+  // event listener for favorites link in user nav menu
+  //
+  $("#nav-favorites").on("click", function (event) {
+    hideElements();
+    if (currentUser) {
+      generateFavs();
+      $("#favorited-articles").show();
+    }
+  });
+  //------------------------------------------------------------------
+  // event listener for my-stories link in user nav menu
+  //
+  $("#nav-my-stories").on("click", function (event) {});
   //------------------------------------------------------------------
   //event listener for create story form submit
   //
@@ -181,6 +196,22 @@ $(async function () {
   //------------------------------------------------------------------
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^FUNCTIONS^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
+  function generateFavs() {
+    // empty out the list by default
+    $("#favorited-articles").empty();
+
+    // if the user has no favorites
+    if (currentUser.favorites.length === 0) {
+      $("#favorited-articles").append("<h5>No favorites added!</h5>");
+    } else {
+      // for all of the user's favorites
+      for (let story of currentUser.favorites) {
+        // render each story in the list
+        let favoriteHTML = generateStoryHTML(story, false, true);
+        $("#favorited-articles").append(favoriteHTML);
+      }
+    }
+  }
   //------------------------------------------------------------------
   //checkIfLoggedIn()
   //
@@ -374,5 +405,24 @@ $(async function () {
     }
     return favStoryIds.has(story.storyId);
   }
+
+  function generateMyStories() {
+    $ownStories.empty();
+
+    // if the user has no stories that they have posted
+    if (currentUser.ownStories.length === 0) {
+      $ownStories.append("<h5>No stories added by user yet!</h5>");
+    } else {
+      // for all of the user's posted stories
+      for (let story of currentUser.ownStories) {
+        // render each story in the list
+        let ownStoryHTML = generateStoryHTML(story, true);
+        $ownStories.append(ownStoryHTML);
+      }
+    }
+
+    $ownStories.show();
+  }
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 });
