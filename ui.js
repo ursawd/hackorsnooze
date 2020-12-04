@@ -261,6 +261,7 @@ $(async function () {
     if (currentUser) {
       showNavForLoggedInUser();
       showProfileInfo(currentUser);
+      $("#user-profile").hide();
     }
   }
   //------------------------------------------------------------------
@@ -407,23 +408,23 @@ $(async function () {
   //  displays profile info at page bottom
   //
   function showProfileInfo(currentUser) {
-    if ($("#profile-name").text() === "Name:") {
-      $("#profile-name").text(
-        $("#profile-name")
-          .text()
-          .concat(" " + currentUser.name)
-      );
-      $("#profile-username").text(
-        $("#profile-username")
-          .text()
-          .concat(" " + currentUser.username)
-      );
-      $("#profile-account-date").text(
-        $("#profile-account-date")
-          .text()
-          .concat(" " + currentUser.createdAt)
-      );
-    }
+    // if ($("#profile-name").text() === "Name:") {
+    //   $("#profile-name").text(
+    //     $("#profile-name")
+    //       .text()
+    //       .concat(" " + currentUser.name)
+    //   );
+    //   $("#profile-username").text(
+    //     $("#profile-username")
+    //       .text()
+    //       .concat(" " + currentUser.username)
+    //   );
+    //   $("#profile-account-date").text(
+    //     $("#profile-account-date")
+    //       .text()
+    //       .concat(" " + currentUser.createdAt)
+    //   );
+    // }
   }
   //------------------------------------------------------------------
   function isFavorite(story) {
