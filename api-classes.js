@@ -1,8 +1,6 @@
 "use strict";
 //^^^^^^^^^^^^^^^^^^^^^^^^^INITIALIZATION^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
-const BASE_URL = "https://hack-or-snooze-v3.herokuapp.com";
-//
 //^^^^^^^^^^^^^^^^^^^^^^^^^CLASS STORYLIST^^^^^^^^^^^^^^^^^^^^^^^^^^
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**
@@ -36,7 +34,9 @@ class StoryList {
 
   static async getStories() {
     // query the /stories endpoint (no auth required)
-    const response = await axios.get(`${BASE_URL}/stories`);
+    const response = await axios.get(
+      `https://hack-or-snooze-v3.herokuapp.com/stories`
+    );
 
     // turn the plain old story objects from the API into instances of the Story class
     const stories = response.data.stories.map((story) => new Story(story));
@@ -74,6 +74,21 @@ class StoryList {
     this.stories.unshift(newStory); // add to stories list
     user.ownStories.unshift(newStory); //add to ownStories list
     return newStory;
+  }
+  async removeStory(user, storyId) {
+    await axios({
+      url: `https://hack-or-snooze-v3.herokuapp.com/stories/stories/${storyId}`,
+      method: "DELETE",
+      data: {
+        token: user.loginToken,
+      },
+    });
+
+    // filter out the story whose ID we are removing
+    this.stories = this.stories.filter((story) => story.storyId !== storyId);
+
+    // do the same thing for the user's list of stories
+    user.ownStories = user.ownStories.filter((s) => s.storyId !== storyId);
   }
 }
 
@@ -113,13 +128,16 @@ class User {
    */
 
   static async create(username, password, name) {
-    const response = await axios.post(`${BASE_URL}/signup`, {
-      user: {
-        username,
-        password,
-        name,
-      },
-    });
+    const response = await axios.post(
+      `https://hack-or-snooze-v3.herokuapp.com/signup`,
+      {
+        user: {
+          username,
+          password,
+          name,
+        },
+      }
+    );
 
     // build a new User instance from the API response
     const newUser = new User(response.data.user);
@@ -139,12 +157,15 @@ class User {
    */
 
   static async login(username, password) {
-    const response = await axios.post(`${BASE_URL}/login`, {
-      user: {
-        username,
-        password,
-      },
-    });
+    const response = await axios.post(
+      `https://hack-or-snooze-v3.herokuapp.com/login`,
+      {
+        user: {
+          username,
+          password,
+        },
+      }
+    );
 
     // build a new User instance from the API response
     const existingUser = new User(response.data.user);
@@ -176,11 +197,14 @@ class User {
     if (!token || !username) return null;
 
     // call the API
-    const response = await axios.get(`${BASE_URL}/users/${username}`, {
-      params: {
-        token,
-      },
-    });
+    const response = await axios.get(
+      `https://hack-or-snooze-v3.herokuapp.com/users/${username}`,
+      {
+        params: {
+          token,
+        },
+      }
+    );
 
     // instantiate the user from the API information
     const existingUser = new User(response.data.user);
@@ -197,7 +221,65 @@ class User {
     );
     return existingUser;
   }
+  async retrieveDetails() {
+    const response = await axios.get(
+      `https://hack-or-snooze-v3.herokuapp.com/users/${this.username}`,
+      {
+        params: {
+          token: this.loginToken,
+        },
+      }
+    );
+
+    // update all of the user's properties from the API response
+    this.name = response.data.user.name;
+    this.createdAt = response.data.user.createdAt;
+    this.updatedAt = response.data.user.updatedAt;
+
+    // remember to convert the user's favorites and ownStories into instances of Story
+    this.favorites = response.data.user.favorites.map((s) => new Story(s));
+    this.ownStories = response.data.user.stories.map((s) => new Story(s));
+
+    return this;
+  }
+
+  /**
+   * Add a story to the list of user favorites and update the API
+   * - storyId: an ID of a story to add to favorites
+   */
+
+  addFavorite(storyId) {
+    return this._toggleFavorite(storyId, "POST");
+  }
+
+  /**
+   * Remove a story to the list of user favorites and update the API
+   * - storyId: an ID of a story to remove from favorites
+   */
+
+  removeFavorite(storyId) {
+    return this._toggleFavorite(storyId, "DELETE");
+  }
+
+  /**
+   * A helper method to either POST or DELETE to the API
+   * - storyId: an ID of a story to remove from favorites
+   * - httpVerb: POST or DELETE based on adding or removing
+   */
+  async _toggleFavorite(storyId, httpVerb) {
+    await axios({
+      url: `https://hack-or-snooze-v3.herokuapp.com/users/${this.username}/favorites/${storyId}`,
+      method: httpVerb,
+      data: {
+        token: this.loginToken,
+      },
+    });
+
+    await this.retrieveDetails();
+    return this;
+  }
 }
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^CLASS STORY^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /**

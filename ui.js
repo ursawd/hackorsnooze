@@ -40,16 +40,38 @@ $(async function () {
   //------------------------------------------------------------------
   //event listener for create story form submit
   //
-  $submitForm.on("submit", function (event) {
+  $submitForm.on("submit", async function (event) {
     event.preventDefault();
     $submitForm.toggle();
     //retrive form data
-    const author = $("#author").val();
     const title = $("#title").val();
     const url = $("#url").val();
+    const hostName = getHostName(url);
+    const author = $("#author").val();
+    const username = currentUser.username;
 
     //make story object
-    const newAPIStory = storyList.addStory(currentUser, { author, title, url });
+    const newAPIStory = await storyList.addStory(currentUser, {
+      author,
+      title,
+      url,
+    });
+    //
+    // add new story to html
+    const $li = $(`
+<li id="${newAPIStory.storyId}" class="id-${newAPIStory.storyId}">
+<span class="star">
+<i class="far fa star"></i>
+</span>
+<a class="article-link" href="${url}" target="a_blank" 
+<strong>${title}</strong>
+</a>
+<small class="article-hostname ${hostName}">(${hostName})</small>
+<small class="article-author">by ${author}</small>
+<small class="article-username">posted by ${username}</small>
+</li>
+`);
+    $allStoriesList.prepend($li);
   });
   //------------------------------------------------------------------
   //Event listener for logging in
@@ -134,9 +156,29 @@ $(async function () {
     hideElements();
     await generateStories();
     $allStoriesList.show();
+    if (currentUser) {
+      showProfileInfo(currentUser);
+    }
   });
   //------------------------------------------------------------------
+  //add / remove article to / from favorites
+  //
+  $(".articles-container").on("click", ".star", async function (event) {
+    if (currentUser) {
+      const $target = $(event.target);
+      const $closestLi = $(event.target.closest("li"));
+      const storyId = $closestLi.attr("id");
+      //
+      if ($target.hasClass("fas")) {
+        await currentUser.removeFavorite(storyId);
+      } else {
+        await currentUser.addFavorite(storyId);
+      }
+      $target.closest("i").toggleClass("fas far");
+    }
+  });
 
+  //------------------------------------------------------------------
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^FUNCTIONS^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   //
   //------------------------------------------------------------------
@@ -160,6 +202,7 @@ $(async function () {
 
     if (currentUser) {
       showNavForLoggedInUser();
+      showProfileInfo(currentUser);
     }
   }
   //------------------------------------------------------------------
@@ -208,20 +251,32 @@ $(async function () {
   }
   //------------------------------------------------------------------
   //generateStoryHTML(story)
-  //
+  //called by generateStories()
   /**
    * A function to render HTML for an individual Story instance
    */
 
-  function generateStoryHTML(story) {
+  function generateStoryHTML(story, isOwnStory = false) {
     let hostName = getHostName(story.url);
+    let starType = isFavorite(story) ? "fas" : "far";
 
-    // render story markup
+    // render a trash can for deleting your own story
+    const trashCanIcon = isOwnStory
+      ? `<span class="trash-can">
+          <i class="fas fa-trash-alt"></i>
+        </span>`
+      : "";
+
+    // render all the rest of the story markup
     const storyMarkup = $(`
       <li id="${story.storyId}">
+        ${trashCanIcon}
+        <span class="star">
+          <i class="${starType} fa-star"></i>
+        </span>
         <a class="article-link" href="${story.url}" target="a_blank">
           <strong>${story.title}</strong>
-        </a>
+          </a>
         <small class="article-author">by ${story.author}</small>
         <small class="article-hostname ${hostName}">(${hostName})</small>
         <small class="article-username">posted by ${story.username}</small>
@@ -288,25 +343,36 @@ $(async function () {
       localStorage.setItem("username", currentUser.username);
     }
   }
+
+  //------------------------------------------------------------------
+  //  displays profile info at page bottom
+  //
+  function showProfileInfo(currentUser) {
+    if ($("#profile-name").text() === "Name:") {
+      $("#profile-name").text(
+        $("#profile-name")
+          .text()
+          .concat(" " + currentUser.name)
+      );
+      $("#profile-username").text(
+        $("#profile-username")
+          .text()
+          .concat(" " + currentUser.username)
+      );
+      $("#profile-account-date").text(
+        $("#profile-account-date")
+          .text()
+          .concat(" " + currentUser.createdAt)
+      );
+    }
+  }
+  //------------------------------------------------------------------
+  function isFavorite(story) {
+    let favStoryIds = new Set();
+    if (currentUser) {
+      favStoryIds = new Set(currentUser.favorites.map((obj) => obj.storyId));
+    }
+    return favStoryIds.has(story.storyId);
+  }
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 });
-//------------------------------------------------------------------
-//  displays profile info at page bottom
-//
-function showProfileInfo(currentUser) {
-  $("#profile-name").text(
-    $("#profile-name")
-      .text()
-      .concat(" " + currentUser.name)
-  );
-  $("#profile-username").text(
-    $("#profile-username")
-      .text()
-      .concat(" " + currentUser.username)
-  );
-  $("#profile-account-date").text(
-    $("#profile-account-date")
-      .text()
-      .concat(" " + currentUser.createdAt)
-  );
-}
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
